@@ -38,4 +38,90 @@ Por lo general existe otro modelo TCP/IP que es muy parecido al OSI con la difer
 Para nuestro proyecto, el sistema operativo ofrece una api para establecer conexiones entre dispositvos conectados en una red mediante IPv4 o IPv6, asi como el propia hardware de la comunicacion de la red fisica, por lo que unicamente nuestro objetivo sera trabajar en la capa de sesion y presentacion, posiblemente se ocupe ciertas caracteristicas de la etapa de transporte, pero no se podra ir a un nivel inferior debido a las restriccion del sistema operativo; Como futuro proyecto se puede utilizar un sistema embebido para la programacion de sistemas de transmision de datos desde la capa 1, obviamente, con sus restriccion por la propia definicion de un sistema embebido (la idea seria ocupar una esp32 que contiene el modulo wifi incluido pero esta ofrece ya una capa de abstraccion para este modulo) o (una raspberry programando en bare metal)
 
 
+### API Network Linux
+
+Como referencia se tomara [Beej's Guide to Network Programing](https://beej.us/guide/bgnet/pdf/bgnet_usl_c_1.pdf)
+
+Como principal cuestion a tratar es **Que es un socket?**; En sintesis, y sin ser muy tecnicos, un sockets es un elemento del sistema operativo que inicia una comunicacion entre 2 programas por medio de una red, en si el socket es un "file" o "psudo-file" en linux que permite esta conexcion, sin embargo, no es lo unico que se requiere para establecer la conexion
+
+Existen algunos "sockets" en linux que determinan propiedades diferentes dependiendo el uso que se le quiera dar, en la pagina [Socket Types](https://www.ibm.com/docs/en/aix/7.1.0?topic=protocols-socket-types) se puede revisar a detalle, sin embargo nosotros hablaremos sobre dos especificamente. **SOCK_STREAM**, la principal caracterista de este tipo es que permite la transmision de datos secuencialas y bidireccionales, en otras palabras esta estrechamente ligado con el protocolo TCP/IP lo que es fundaemental para la creacion deeste tipo de servidores, por ejemplo servidores que utilizan el protocolo http. Por otro lado se tiene el **SOCK_DGRAM** que es el User Datagram Program o UDP
+
+Ahora hablaremos del tema mas importa que son los **strucs**; estos permiten la configuracion principal para establecer la comunicacion entre 2 programas. Empecemos a hablar del primer **struct addrinfo**, este usualmente se utiliza para inicializar o preparar ciertos parametros importante, ya que aveces se quiere resolver un dominio.
+
+```
+struct addrinfo {
+    int ai_flags; // AI_PASSIVE, AI_CANONNAME, etc.
+    int ai_family; // AF_INET, AF_INET6, AF_UNSPEC
+    int ai_socktype; // SOCK_STREAM, SOCK_DGRAM
+    int ai_protocol; // use 0 for "any"
+    size_t ai_addrlen; // size of ai_addr in bytes
+    struct sockaddr *ai_addr; // struct sockaddr_in or _in6
+    char *ai_canonname; // full canonical hostname
+    struct addrinfo *ai_next; // linked list, next node
+};
+
+```
+
+Lo que se suleve hacer con esta estructura es colocar ciertos valores para luego llamar a la funcion **getaddrinfo()** y obtener la estructura completa, notese que se la estrcutura presenta un puntero hacia la siguiente direccion, esto es debido a que actualemnente un dominio suele estar vinculado con IPv4 e IPv6. Otra estructura es el **struct sockaddr** que almacena informacion del tipo de ip y, la adress y el puerto como un array de 14 bytes
+
+```
+struct sockaddr {
+    unsigned short sa_family; // address family, AF_xxx
+    char sa_data[14]; // 14 bytes of protocol address
+};
+
+```
+
+no obstante, algunos programadores han desarrollado estrcutaras para ipv4 y ipv6 por separado, estos estan estechamente ligados con el anterior lo que permite realizar un casting sencillo.
+
+**Para IPv4**
+
+```
+struct sockaddr_in {
+    short int sin_family; // Address family, AF_INET
+    unsigned short int sin_port; // Port number
+    struct in_addr sin_addr; // Internet address
+    unsigned char sin_zero[8]; // Same size as struct sockaddr
+};
+
+```
+
+```
+struct in_addr {
+    uint32_t s_addr; // that's a 32-bit int (4 bytes)
+};
+```
+
+**Para IPv6**
+
+
+```
+struct sockaddr_in6 {
+    u_int16_t sin6_family; // address family, AF_INET6
+    u_int16_t sin6_port; // port, Network Byte Order
+    u_int32_t sin6_flowinfo; // IPv6 flow information
+    struct in6_addr sin6_addr; // IPv6 address
+    u_int32_t sin6_scope_id; // Scope ID
+};
+
+```
+```
+struct in6_addr {
+    unsigned char s6_addr[16]; // IPv6 address
+};
+```
+
+Por otra parte existe una estructura que permite almacenar la ip sin saber con anticipacion el tipo de ip que se esta trabajando
+
+
+```
+struct sockaddr_storage {
+    sa_family_t ss_family; // address family
+    // all this is padding, implementation specific, ignore it:
+    char __ss_pad1[_SS_PAD1SIZE];
+    int64_t __ss_align;
+    char __ss_pad2[_SS_PAD2SIZE];
+};
+```
+
 
