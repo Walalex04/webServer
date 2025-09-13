@@ -42,3 +42,8 @@ void printIPv6(struct sockaddr_in6 *sa6){
 
   printf("The IPv6 address is %s\n", ip6);
 }
+
+
+
+
+
