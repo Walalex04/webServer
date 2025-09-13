@@ -124,4 +124,43 @@ struct sockaddr_storage {
 };
 ```
 
+Ahora se presenta funciones que permiten el manejo de las direcciones ip, en especifico se puede formatear a texto las direcciones ip.
 
+```
+//For IPv4
+
+char ip4[INET_ADDRSTRLEN];      //space for text
+struct sockaddr_in sa;          //this has contect about something
+
+inet_ntop(AF_INET, &(sa.sin_addr), ip4, INET_ADDRSTRLEN);
+
+printf("The IPv4 address is: %s\n", ip4);
+
+
+
+//For IPv6
+char ip6[INET6_ADDRSTRLEN];     //space for text
+struct sockaddr_in6 sa6;
+
+inet_ntop(AF_INET6, &(sa6.sin6_addr), ip6, INET6_ADDRSTRLEN);
+
+printf("The addtess is %s\n", ip6);
+
+
+```
+
+
+Ahora nos enfocaremos en algunas system calls que permitiran establecer una comunicacion, comencemos estudiando la sigiente funcion que es **getaddrinfo** que resuelve (en caso de ser necesario) el dominio para obtener la ip correspondiente y retora el struct addrinfo que posteriormente se utilizara para el socket
+
+```
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+
+int getaddrinfo(const char *node, // e.g. "www.example.com" or IP
+    const char *service, // e.g. "http" or port number
+    const struct addrinfo *hints,
+    struct addrinfo **res);
+
+
+```
