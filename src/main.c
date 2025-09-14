@@ -12,9 +12,10 @@
 int main(int argc, char *argv[]){
 
   int status;                               // store the status of getaddrinfo
-  struct addrinfo *hints, *res, *p;
+  struct addrinfo *hints;
+  struct addrinfo *res;
 
-  memset(hints, 0, sizeof *(hints));        //make sure that is empty
+  memset(hints, 0, sizeof *hints);        //make sure that is empty
   
   //config the hints
   hints->ai_family = AF_UNSPEC;             //don't care IPv4 or IPv6
@@ -22,19 +23,22 @@ int main(int argc, char *argv[]){
   hints->ai_flags = AI_PASSIVE;             //fill in my ip for me
 
 
-  status = getaddrinfo(NULL, "8080", hints, res);
+  status = getaddrinfo(NULL, "8080", hints, &res);
   //note that the NULL mean my ip
+
 
 
   if(status != 0){
     //there is an error
     fprintf(stderr, "gai_error: %s\n", gai_strerror(status));
-    return EXIT_FAILURE;
+    return 1;
   }
 
-
+  
+  printf("all is correct");
+  printIPv4((struct sockaddr_in *) res->ai_addr);
 
   //free linked-list
-  freeaddrinfo(*res);
+  freeaddrinfo(res);
 
 }

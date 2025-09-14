@@ -1,5 +1,7 @@
 
-
+#include <stdio.h>
+#include <netinet/in.h>  // Primero headers del sistema
+#include <arpa/inet.h>
 #include "util.h"
 #include "string.h"
 
@@ -14,13 +16,11 @@
  */
 void printIPv4(struct sockaddr_in *socAddr){
   
-  char ip4[INET_ADDTSTRLEN]; 
+  char ip4[INET_ADDRSTRLEN]; 
   
-  inet_ntop(AF_NET, &(socAddr->sin_addr), ip4, INET_ADDRSTRLEN);
+  inet_ntop(AF_INET, &(socAddr->sin_addr), ip4, INET_ADDRSTRLEN);
   
   printf("The IPv4 address is: %s\n", ip4);
-
-
 }
 
 
@@ -32,13 +32,11 @@ void printIPv4(struct sockaddr_in *socAddr){
  * @param socAddr It is the struct addr's pointer
  */
 
-void printIPv6(struct sockaddr_in6 *sa6){
+void printIPv6(struct sockaddr_in6 *socAddr6){
   
   char ip6[INET6_ADDRSTRLEN];
 
-  struct sockaddr_in6 sa6;
-
-  inet_ntop(AF_INET6, &(sa6->sin6_addr), ip6, INET_ADDRSTRLEN);
+  inet_ntop(AF_INET6, &(socAddr6->sin6_addr), ip6, INET_ADDRSTRLEN);
 
   printf("The IPv6 address is %s\n", ip6);
 }
