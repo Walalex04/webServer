@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
   hints->ai_flags = AI_PASSIVE;             //fill in my ip for me
 
 
-  status = getaddrinfo(NULL, "8080", hints, &res);
+  status = getaddrinfo(NULL, "8080", hints, &(res));
   //note that the NULL mean my ip
 
 

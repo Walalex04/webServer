@@ -164,3 +164,60 @@ int getaddrinfo(const char *node, // e.g. "www.example.com" or IP
 
 
 ```
+
+Ahora nos enfocaremos en la creacion de los enlaces de comuniccaion por lo que veremos el primer system call que es el **socket()** el cual nos permitira obtener el File Descrriptor
+
+```
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int socket(int domain, int type, int protocol);
+```
+
+El dominio, indica el tipo de ip que se utilizara, para esto se tiene dos constanes **PF_INET** y **PF_INET6**; para el tipo son los sockets que se menciono al inicio de esta seccion, es decir **SOCK_STREAM** o **SOCK_DGRAM**, aunque se piede utilizar los demas que se menciono antes, pero para nuestro propsito se ocupara el primero, y el ultimo es el protocolo
+
+Otro system call que se utiliza es el **bind()** que asocia el socket a un puerto de la maquina.
+
+```
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int bind(int sockfd, struct sockaddr *my_addr, int addrlen);
+
+```
+
+El primer argumento representa el File Descriptor del socket, mientras que el segundo es la direccion y el puerto, recuerdese que esta estructura combina estos dos elementos, y por ultimo la longitud de la direccion. Usualemente es que se suele ocupar la funcion **getaddrinfo** para la obtencion de la informacion, puesto que devulve el addrinfo, y con esto es mas facil trabajar para la construccion de la comunicacion
+
+
+Aunque para nuestro proposito no se utilizara, es util mencionarlo, existe otra funcion que permite conectar hacia un servidor, esta es **connect()** que primero establece el socket y luego trata de conectarse, en este caso no es necesario el bind porque no levantara el servicio directmante.
+
+```
+
+#include <sys/types.h>
+#include <sys/socket.h>
+
+int connect(int sockfd, struct sockaddr *serv_addr, int addrlen);
+
+```
+
+Como se tenia el connect en el lado del cliente, el **listen** es el que mantiene la escucha en el lado del servidor, este esta de la mano con el **accept** que es el que acepta la comunicacion 
+
+
+```
+#include <sys/types.h>
+#include <sys/socket.h>
+
+
+int listen(int sockfd, int backlog);
+
+int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
+```
+
+Para el caso del listen, backlog es la cantidad de peticiones que se puede almacenar el cola. y el accept es que acepta la solicitud y permite optener los datos del usuario. Y para la emision y recepcion de informacion se tiene: 
+```
+int send(int sockfd, const void *msg, int len, int flags);
+
+int recv(int sockfd, void *buf, int len, int flags);
+```
+
+recuerdese que al tratarse de files es necesario el **close(sockfd)**
