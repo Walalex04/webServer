@@ -221,3 +221,4 @@ int recv(int sockfd, void *buf, int len, int flags);
 ```
 
 recuerdese que al tratarse de files es necesario el **close(sockfd)**
+
